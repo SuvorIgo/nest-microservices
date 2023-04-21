@@ -1,0 +1,95 @@
+version: "3"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.11.13-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - microservices-network
+
+  postgres:
+    image: postgres 
+    container_name: postgres
+    volumes:
+      - ./docker-postgres/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - pg-data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=postgres
+    networks: 
+      - microservices-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_LISTEN_PORT=80
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "8080:80"
+    networks:
+      - microservices-network
+    volumes: 
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  authorization-service:
+    build: ./authorization-service
+    restart: on-failure
+    container_name: authorization-service
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks: 
+      - microservices-network
+
+  profile-service:
+    build: ./profile-service
+    restart: on-failure
+    container_name: profile-service
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks: 
+      - microservices-network
+
+  api-gateway:
+    build: ./api-gateway
+    restart: always
+    container_name: api-gateway
+    ports: 
+      - "8000:3000"
+    depends_on:
+      - rabbitmq
+      - authorization-service
+      - profile-service
+    networks: 
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  pg-data:
+  pgadmin-data:
+  rabbit-data:

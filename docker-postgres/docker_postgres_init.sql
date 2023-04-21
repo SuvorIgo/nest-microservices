@@ -1,0 +1,2 @@
+CREATE DATABASE "AuthorizationMS";
+CREATE DATABASE "ProfileMS";
