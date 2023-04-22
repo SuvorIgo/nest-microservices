@@ -10,8 +10,6 @@
 
 Чтобы начать разработку проекта, пожалуйста, проверьте, установлены ли эти инструменты на вашем компьютере:
 
-* [Node.js](https://nodejs.org/en/download/)
-* [Npm](https://docs.npmjs.com/cli/v8/commands/npm-install)
 * [Docker](https://www.docker.com/get-started)
 
 ### Installation
@@ -68,3 +66,15 @@ localhost:15672
 4. После создания сервера можно увидеть три БД - postgres (default), ProfileMS и AuthorizationMS.
 
 ## The following technologies were used to create the project:
+
+- Nest.js
+- Micro-service architecture
+- RabbitMQ
+- JWT Token
+- REST API
+- Swagger
+- TypeScript
+- PostgreSQL + pgAdmin4
+- Sequelize
+- Docker
+- VS Code
